@@ -18,6 +18,7 @@ import (
 	"context"
 	"crypto/rand"
 	"crypto/tls"
+	"fmt"
 	"github.com/recordbase/recordbase"
 	"github.com/recordbase/recordpb"
 	"google.golang.org/grpc/codes"
@@ -179,6 +180,11 @@ func (t *Instance) Merge(entry *Entry, timeoutMillis int) error {
 
 func (t *Instance) Replace(entry *Entry, timeoutMillis int) error {
 	return t.doUpdate(entry, recordpb.UpdateType_MERGE, timeoutMillis)
+}
+
+func (t *Instance) Test(m map[interface{}]interface{}) error {
+	fmt.Printf("Test m = %+v\n", m)
+	return nil
 }
 
 
