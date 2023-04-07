@@ -20,6 +20,8 @@ import (
 	"crypto/tls"
 	"github.com/recordbase/recordbase"
 	"github.com/recordbase/recordpb"
+	"os"
+	"strings"
 	"time"
 )
 
@@ -32,6 +34,10 @@ func (t *Instance) Close() {
 }
 
 func Connect(endpoint, token string, tls bool, timeoutMillis int) (*Instance, error) {
+
+	if strings.HasPrefix(token, "env:") {
+		token = os.Getenv(token[4:])
+	}
 
 	if timeoutMillis > 0 {
 		clientDeadline := time.Now().Add(time.Duration(timeoutMillis) * time.Millisecond)
