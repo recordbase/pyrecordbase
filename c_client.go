@@ -26,11 +26,11 @@ import (
 )
 
 type Instance struct {
-	Client  recordbase.Client
+	client  recordbase.Client
 }
 
 func (t *Instance) Close() {
-	t.Client.Destroy()
+	t.client.Destroy()
 }
 
 func Connect(endpoint, token string, tls bool, timeoutMillis int) (*Instance, error) {
@@ -67,7 +67,7 @@ func doConnect(ctx context.Context, endpoint, token string, useTLS bool) (*Insta
 	}
 
 	return &Instance {
-		Client: client,
+		client: client,
 	}, nil
 }
 
@@ -81,22 +81,20 @@ type Entry struct {
 	Attributes map[string]string
 	Tags       []string
 	Columns    map[string][]byte
-	Files      map[string]*FileEntry
+	Files      map[string]*FileInfo
 }
 
-type FileEntry struct {
+type FileInfo struct {
 	Name      string
-	Data      []byte
 	Size      int32
 	CreatedAt int64
 }
 
-func (t *Instance) Get(tenant, primaryKey string, fileContents bool, timeoutMillis int) (*Entry, error) {
+func (t *Instance) Get(tenant, primaryKey string, timeoutMillis int) (*Entry, error) {
 
 	req := &recordpb.GetRequest {
 		Tenant:       tenant,
 		PrimaryKey:   primaryKey,
-		FileContents: fileContents,
 	}
 
 	if timeoutMillis > 0 {
@@ -115,7 +113,7 @@ func (t *Instance) Get(tenant, primaryKey string, fileContents bool, timeoutMill
 
 func (t *Instance) doGet(ctx context.Context, req *recordpb.GetRequest) (*Entry, error) {
 
-	resp, err := t.Client.Get(ctx, req)
+	resp, err := t.client.Get(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -130,11 +128,10 @@ func (t *Instance) doGet(ctx context.Context, req *recordpb.GetRequest) (*Entry,
 		columns[entry.Name] = entry.Value
 	}
 
-	files := make(map[string]*FileEntry)
+	files := make(map[string]*FileInfo)
 	for _, entry := range resp.Files {
-		files[entry.Name] = &FileEntry{
+		files[entry.Name] = &FileInfo{
 			Name:      entry.Name,
-			Data:      entry.Data,
 			Size:      entry.Size,
 			CreatedAt: entry.CreatedAt,
 		}
