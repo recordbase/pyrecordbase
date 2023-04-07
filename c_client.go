@@ -20,6 +20,8 @@ import (
 	"crypto/tls"
 	"github.com/recordbase/recordbase"
 	"github.com/recordbase/recordpb"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"os"
 	"strings"
 	"time"
@@ -96,6 +98,9 @@ func (t *Instance) doGet(ctx context.Context, req *recordpb.GetRequest) (map[str
 
 	resp, err := t.client.Get(ctx, req)
 	if err != nil {
+		if s, ok := status.FromError(err); ok && s.Code() == codes.NotFound {
+			return make(map[string]interface{}), nil
+		}
 		return nil, err
 	}
 
