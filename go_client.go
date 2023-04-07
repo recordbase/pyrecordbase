@@ -18,7 +18,7 @@ import (
 	"context"
 	"crypto/rand"
 	"crypto/tls"
-	"fmt"
+	"encoding/json"
 	"github.com/recordbase/recordbase"
 	"github.com/recordbase/recordpb"
 	"google.golang.org/grpc/codes"
@@ -107,7 +107,7 @@ func doConnect(ctx context.Context, endpoint, token string, useTLS bool) (*Insta
 	}, nil
 }
 
-func (t *Instance) Get(tenant, primaryKey string, timeoutMillis int) (*Entry, error) {
+func (t *Instance) Get(tenant, primaryKey string, timeoutMillis int) (string, error) {
 
 	req := &recordpb.GetRequest {
 		Tenant:       tenant,
@@ -128,14 +128,14 @@ func (t *Instance) Get(tenant, primaryKey string, timeoutMillis int) (*Entry, er
 
 }
 
-func (t *Instance) doGet(ctx context.Context, req *recordpb.GetRequest) (*Entry, error) {
+func (t *Instance) doGet(ctx context.Context, req *recordpb.GetRequest) (string, error) {
 
 	resp, err := t.client.Get(ctx, req)
 	if err != nil {
 		if s, ok := status.FromError(err); ok && s.Code() == codes.NotFound {
-			return new(Entry), nil
+			return "", nil
 		}
-		return nil, err
+		return "", err
 	}
 
 	attrs := make(map[string]string)
@@ -159,7 +159,7 @@ func (t *Instance) doGet(ctx context.Context, req *recordpb.GetRequest) (*Entry,
 		}
 	}
 
-	return &Entry {
+	entry :=  &Entry {
 		Tenant: resp.Tenant,
 		PrimaryKey: resp.PrimaryKey,
 		Version: resp.Version,
@@ -170,25 +170,31 @@ func (t *Instance) doGet(ctx context.Context, req *recordpb.GetRequest) (*Entry,
 		Tags: resp.Tags,
 		Columns:  columns,
 		Files: files,
-	}, nil
+	}
 
+	data, err := json.Marshal(entry)
+	if err != nil {
+		return "", err
+	}
+
+	return string(data), err
 }
 
-func (t *Instance) Merge(entry *Entry, timeoutMillis int) error {
-	return t.doUpdate(entry, recordpb.UpdateType_MERGE, timeoutMillis)
+func (t *Instance) Merge(jsonEntry string, timeoutMillis int) error {
+	return t.doUpdate(jsonEntry, recordpb.UpdateType_MERGE, timeoutMillis)
 }
 
-func (t *Instance) Replace(entry *Entry, timeoutMillis int) error {
-	return t.doUpdate(entry, recordpb.UpdateType_MERGE, timeoutMillis)
+func (t *Instance) Replace(jsonEntry string, timeoutMillis int) error {
+	return t.doUpdate(jsonEntry, recordpb.UpdateType_MERGE, timeoutMillis)
 }
 
-func (t *Instance) Test(m map[interface{}]interface{}) error {
-	fmt.Printf("Test m = %+v\n", m)
-	return nil
-}
+func (t *Instance) doUpdate(jsonEntry string, updateType recordpb.UpdateType, timeoutMillis int) error {
 
-
-func (t *Instance) doUpdate(entry *Entry, updateType recordpb.UpdateType, timeoutMillis int) error {
+	entry := new(Entry)
+	err := json.Unmarshal([]byte(jsonEntry), entry)
+	if err != nil {
+		return err
+	}
 
 	req := &recordpb.UpdateRequest {
 		Tenant:       entry.Tenant,
