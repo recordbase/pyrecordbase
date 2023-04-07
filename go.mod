@@ -3,6 +3,7 @@ module github.com/recordbase/pyrecordbase
 go 1.17
 
 require (
+	github.com/go-python/gopy v0.4.6
 	github.com/recordbase/recordbase v1.0.4
 	github.com/recordbase/recordpb v1.0.10
 )

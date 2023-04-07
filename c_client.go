@@ -71,26 +71,7 @@ func doConnect(ctx context.Context, endpoint, token string, useTLS bool) (*Insta
 	}, nil
 }
 
-type Entry struct {
-	Tenant     string
-	PrimaryKey string
-	Version    int64
-	CreatedAt  int64
-	UpdatedAt  int64
-	DeletedAt  int64
-	Attributes map[string]string
-	Tags       []string
-	Columns    map[string][]byte
-	Files      map[string]*FileInfo
-}
-
-type FileInfo struct {
-	Name      string
-	Size      int32
-	CreatedAt int64
-}
-
-func (t *Instance) Get(tenant, primaryKey string, timeoutMillis int) (*Entry, error) {
+func (t *Instance) Get(tenant, primaryKey string, timeoutMillis int) (map[string]interface{}, error) {
 
 	req := &recordpb.GetRequest {
 		Tenant:       tenant,
@@ -111,7 +92,7 @@ func (t *Instance) Get(tenant, primaryKey string, timeoutMillis int) (*Entry, er
 
 }
 
-func (t *Instance) doGet(ctx context.Context, req *recordpb.GetRequest) (*Entry, error) {
+func (t *Instance) doGet(ctx context.Context, req *recordpb.GetRequest) (map[string]interface{}, error) {
 
 	resp, err := t.client.Get(ctx, req)
 	if err != nil {
@@ -128,26 +109,26 @@ func (t *Instance) doGet(ctx context.Context, req *recordpb.GetRequest) (*Entry,
 		columns[entry.Name] = entry.Value
 	}
 
-	files := make(map[string]*FileInfo)
+	files := make(map[string]interface{})
 	for _, entry := range resp.Files {
-		files[entry.Name] = &FileInfo{
-			Name:      entry.Name,
-			Size:      entry.Size,
-			CreatedAt: entry.CreatedAt,
+		files[entry.Name] = map[string]interface{}{
+			"Name":      entry.Name,
+			"Size":      entry.Size,
+			"CreatedAt": entry.CreatedAt,
 		}
 	}
 
-	return &Entry {
-		Tenant: resp.Tenant,
-		PrimaryKey: resp.PrimaryKey,
-		Version: resp.Version,
-		CreatedAt: resp.CreatedAt,
-		UpdatedAt: resp.UpdatedAt,
-		DeletedAt: resp.DeletedAt,
-		Attributes: attrs,
-		Tags: resp.Tags,
-		Columns:  columns,
-		Files: files,
+	return map[string]interface{} {
+		"Tenant": resp.Tenant,
+		"PrimaryKey": resp.PrimaryKey,
+		"Version": resp.Version,
+		"CreatedAt": resp.CreatedAt,
+		"UpdatedAt": resp.UpdatedAt,
+		"DeletedAt": resp.DeletedAt,
+		"Attributes": attrs,
+		"Tags": resp.Tags,
+		"Columns":  columns,
+		"Files": files,
 	}, nil
 
 }
