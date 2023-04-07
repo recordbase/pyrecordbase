@@ -6,6 +6,7 @@ require (
 	github.com/go-python/gopy v0.4.6
 	github.com/recordbase/recordbase v1.0.4
 	github.com/recordbase/recordpb v1.0.10
+	github.com/vmihailenco/msgpack/v5 v5.3.5
 	google.golang.org/grpc v1.53.0
 )
 
@@ -18,6 +19,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.15.2 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	golang.org/x/net v0.7.0 // indirect
 	golang.org/x/sys v0.5.0 // indirect

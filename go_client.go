@@ -23,6 +23,7 @@ import (
 	"github.com/recordbase/recordpb"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"github.com/vmihailenco/msgpack/v5"
 	"os"
 	"strings"
 	"time"
@@ -180,18 +181,18 @@ func (t *Instance) doGet(ctx context.Context, req *recordpb.GetRequest) (string,
 	return string(data), err
 }
 
-func (t *Instance) Merge(jsonEntry string, timeoutMillis int) error {
-	return t.doUpdate(jsonEntry, recordpb.UpdateType_MERGE, timeoutMillis)
+func (t *Instance) Merge(msgEntry []byte, timeoutMillis int) error {
+	return t.doUpdate(msgEntry, recordpb.UpdateType_MERGE, timeoutMillis)
 }
 
-func (t *Instance) Replace(jsonEntry string, timeoutMillis int) error {
-	return t.doUpdate(jsonEntry, recordpb.UpdateType_MERGE, timeoutMillis)
+func (t *Instance) Replace(msgEntry []byte, timeoutMillis int) error {
+	return t.doUpdate(msgEntry, recordpb.UpdateType_MERGE, timeoutMillis)
 }
 
-func (t *Instance) doUpdate(jsonEntry string, updateType recordpb.UpdateType, timeoutMillis int) error {
+func (t *Instance) doUpdate(msgEntry []byte, updateType recordpb.UpdateType, timeoutMillis int) error {
 
 	entry := new(Entry)
-	err := json.Unmarshal([]byte(jsonEntry), entry)
+	err := msgpack.Unmarshal(msgEntry, entry)
 	if err != nil {
 		return err
 	}
