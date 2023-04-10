@@ -181,12 +181,12 @@ func (t *Instance) doGet(ctx context.Context, req *recordpb.GetRequest) (string,
 	return string(data), err
 }
 
-func (t *Instance) Merge(msgEntry []byte, timeoutMillis int) error {
-	return t.doUpdate(msgEntry, recordpb.UpdateType_MERGE, timeoutMillis)
+func (t *Instance) Merge(msgEntry string, timeoutMillis int) error {
+	return t.doUpdate([]byte(msgEntry), recordpb.UpdateType_MERGE, timeoutMillis)
 }
 
-func (t *Instance) Replace(msgEntry []byte, timeoutMillis int) error {
-	return t.doUpdate(msgEntry, recordpb.UpdateType_MERGE, timeoutMillis)
+func (t *Instance) Replace(msgEntry string, timeoutMillis int) error {
+	return t.doUpdate([]byte(msgEntry), recordpb.UpdateType_MERGE, timeoutMillis)
 }
 
 func (t *Instance) doUpdate(msgEntry []byte, updateType recordpb.UpdateType, timeoutMillis int) error {
