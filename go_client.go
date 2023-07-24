@@ -1,15 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Zander Schwid & Co. LLC.
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
+ * Copyright (c) 2022-2023 Zander Schwid & Co. LLC. All rights reserved.
  */
 
 package pyrecordbase
@@ -52,7 +42,7 @@ type Entry struct {
 	DeletedAt  int64   `json:"deleted_at,omitempty"`
 	Attributes map[string]string   `json:"attributes,omitempty"`
 	Tags       []string            `json:"tags,omitempty"`
-	Columns    map[string][]byte   `json:"columns,omitempty"`
+	Bins       map[string][]byte   `json:"columns,omitempty"`
 	Files      map[string]FileInfo `json:"files,omitempty"`
 }
 
@@ -144,9 +134,9 @@ func (t *Instance) doGet(ctx context.Context, req *recordpb.GetRequest) (string,
 		attrs[entry.Name] = entry.Value
 	}
 
-	columns := make(map[string][]byte)
-	for _, entry := range resp.Columns {
-		columns[entry.Name] = entry.Value
+	bins := make(map[string][]byte)
+	for _, entry := range resp.Bins {
+		bins[entry.Name] = entry.Value
 	}
 
 	files := make(map[string]FileInfo)
@@ -161,16 +151,16 @@ func (t *Instance) doGet(ctx context.Context, req *recordpb.GetRequest) (string,
 	}
 
 	entry :=  &Entry {
-		Tenant: resp.Tenant,
+		Tenant:     resp.Tenant,
 		PrimaryKey: resp.PrimaryKey,
-		Version: resp.Version,
-		CreatedAt: resp.CreatedAt,
-		UpdatedAt: resp.UpdatedAt,
-		DeletedAt: resp.DeletedAt,
+		Version:    resp.Version,
+		CreatedAt:  resp.CreatedAt,
+		UpdatedAt:  resp.UpdatedAt,
+		DeletedAt:  resp.DeletedAt,
 		Attributes: attrs,
-		Tags: resp.Tags,
-		Columns:  columns,
-		Files: files,
+		Tags:       resp.Tags,
+		Bins:       bins,
+		Files:      files,
 	}
 
 	data, err := json.Marshal(entry)
@@ -211,8 +201,8 @@ func (t *Instance) doUpdate(msgEntry []byte, updateType recordpb.UpdateType, tim
 		})
 	}
 
-	for name, value := range entry.Columns {
-		req.Columns = append(req.Columns, &recordpb.ColumnEntry{
+	for name, value := range entry.Bins {
+		req.Bins = append(req.Bins, &recordpb.BinEntry{
 			Name:  name,
 			Value: value,
 		})

@@ -3,9 +3,8 @@ module github.com/recordbase/pyrecordbase
 go 1.17
 
 require (
-	github.com/go-python/gopy v0.4.6
-	github.com/recordbase/recordbase v1.0.4
-	github.com/recordbase/recordpb v1.0.10
+	github.com/recordbase/recordbase v1.1.1
+	github.com/recordbase/recordpb v1.1.1
 	github.com/vmihailenco/msgpack/v5 v5.3.5
 	google.golang.org/grpc v1.53.0
 )
@@ -13,11 +12,11 @@ require (
 require (
 	github.com/codeallergy/glue v1.0.2 // indirect
 	github.com/codeallergy/grpc-multi-resolver v1.2.0 // indirect
-	github.com/codeallergy/raftpb v1.0.3 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.15.2 // indirect
 	github.com/kr/text v0.2.0 // indirect
+	github.com/openraft/raftpb v1.1.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
